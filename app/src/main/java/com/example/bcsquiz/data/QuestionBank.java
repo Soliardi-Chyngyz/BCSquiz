@@ -1,5 +1,7 @@
 package com.example.bcsquiz.data;
 
+import android.util.Log;
+
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -15,7 +17,7 @@ import java.util.List;
 
 public class QuestionBank {
     ArrayList<Question> questionArrayList = new ArrayList<>();
-    private String url = "https://raw.githubusercontent.com/curiousily/simple-quiz/master/script/statements-data.json";
+    private String url = "https://raw.githubusercontent.com/Soliardi-Chyngyz/BCSquiz/master/bsc-data.json";
 
     public List<Question> getQuestions(final AnswerListAsyncResponse callBack) {
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
@@ -28,8 +30,12 @@ public class QuestionBank {
                         for (int i = 0; i < response.length(); i++) {
                             try {
                                 Question question = new Question();
-                                question.setAnswer(response.getJSONArray(i).get(0).toString());
-                                question.setAnswerTrue(response.getJSONArray(i).getBoolean(1));
+                                question.setQuestion(response.getJSONArray(i).get(0).toString());
+                                question.setAnswerTrue(response.getJSONArray(i).get(1).toString());
+                                question.setV1(response.getJSONArray(i).get(2).toString());
+                                question.setV2(response.getJSONArray(i).get(3).toString());
+                                question.setV3(response.getJSONArray(i).get(4).toString());
+                                question.setV4(response.getJSONArray(i).get(5).toString());
 
                                 // add question objects to list
                                 questionArrayList.add(question);
@@ -43,7 +49,7 @@ public class QuestionBank {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                Log.d("anime", error.toString());
             }
         });
         AppController.getInstance().addToRequestQueue(jsonArrayRequest);

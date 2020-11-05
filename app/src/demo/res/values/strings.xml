@@ -1,0 +1,7 @@
+<resources>
+
+    <string name="title">Be best</string>
+    <string name="correct_answer">Correct</string>
+    <string name="wrong_answer">Wrong!</string>
+    <string name="app_name" />
+</resources>

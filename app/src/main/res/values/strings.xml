@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">BCSquiz</string>
+
     <string name="title">Trivia</string>
     <string name="correct_answer">Correct</string>
     <string name="wrong_answer">Wrong!</string>
+    <string name="app_name" />
 </resources>

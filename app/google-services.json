@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1006962670004",
+    "firebase_url": "https://bscq-170e0.firebaseio.com",
+    "project_id": "bscq-170e0",
+    "storage_bucket": "bscq-170e0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1006962670004:android:286aa98c1bd2cb79541ae1",
+        "android_client_info": {
+          "package_name": "com.example.bcsquiz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1006962670004-5mc654034gu8m320mhofj5qb91p3701h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2PGm8pvU9f3jbVpSZbA5UFIZHoxRtsNo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1006962670004-5mc654034gu8m320mhofj5qb91p3701h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
