@@ -37,6 +37,7 @@ import util.Prefs;
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
     private TextView questionTxt, questionCounterTxt, sumCurrent, topPoints, timer;
     private Button firstBtn, secBtn, thirdBtn, fourthBtn;
+
     //    private ImageView nextBtn, prevBtn;
     private int currentQuestionIndex = 0;
     private List<Question> questionList;
@@ -52,9 +53,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // изменения цвета статус бара
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(R.color.transparent);
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            getWindow().setStatusBarColor(R.color.transparent);
+//        }
         // убрали статус бар
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
         setContentView(R.layout.activity_game);
@@ -78,9 +79,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 //        sumCurrent.setText(MessageFormat.format("{0} current points", String.valueOf(score.getScore())));
 
         // Prefs
-        sumCurrent.setText(MessageFormat.format("{0} current points", String.valueOf(prefs.getCount())));
-        currentQuestionIndex = prefs.getState();
-        topPoints.setText(MessageFormat.format("Highest points: {0}", String.valueOf(prefs.getHighScore())));
+//        sumCurrent.setText(MessageFormat.format("{0} current points", String.valueOf(prefs.getCount())));
+//        currentQuestionIndex = prefs.getState();
+//        topPoints.setText(MessageFormat.format("Highest points: {0}", String.valueOf(prefs.getHighScore())));
 
         questionList = new QuestionBank().getQuestions(questionArrayList -> {
             questionTxt.setText(questionArrayList.get(currentQuestionIndex).getQuestion());
@@ -102,11 +103,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 timeLeftInMilliSeconds = l;
                 updateTimer();
             }
-
             @Override
             public void onFinish() {
                 shakeAnim();
-                startTime();
             }
         }.start();
     }
@@ -115,7 +114,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         int seconds = (int) (timeLeftInMilliSeconds % 20000 / 1000);
         timer.setText(String.valueOf(seconds));
     }
-
 
     private void initMessage() {
         FirebaseMessaging.getInstance().getToken()
@@ -173,6 +171,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             addPoints();
             fadeView();
             toastMessageId = R.string.correct_answer;
+            firstBtn.setEnabled(false);
+            secBtn.setEnabled(false);
+            thirdBtn.setEnabled(false);
+            fourthBtn.setEnabled(false);
         } else {
             shakeAnim();
             toastMessageId = R.string.wrong_answer;
@@ -181,7 +183,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void addPoints() {
-        scoreCount += 10;
+        int scoreCount = score.getScore() + (int) (timeLeftInMilliSeconds / 1000);
         score.setScore(scoreCount);
         sumCurrent.setText(MessageFormat.format("{0} points", String.valueOf(score.getScore())));
     }
@@ -248,11 +250,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void goNext() {
         currentQuestionIndex = (currentQuestionIndex + 1) % questionList.size();
+        firstBtn.setEnabled(true);
+        secBtn.setEnabled(true);
+        thirdBtn.setEnabled(true);
+        fourthBtn.setEnabled(true);
         updateData();
+        startTime();
     }
 
     @SuppressLint("SetTextI18n")
     private void updateData() {
+        countDownTimer.cancel();
         String answer1 = questionList.get(currentQuestionIndex).getV1();
         String answer2 = questionList.get(currentQuestionIndex).getV2();
         String answer3 = questionList.get(currentQuestionIndex).getV3();
@@ -260,18 +268,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         String question = questionList.get(currentQuestionIndex).getQuestion();
         questionTxt.setText(question);
         questionCounterTxt.setText(currentQuestionIndex + " / " + questionList.size()); // 0 or 234
-
         firstBtn.setText(answer1);
         secBtn.setText(answer2);
         thirdBtn.setText(answer3);
         fourthBtn.setText(answer4);
     }
 
-    @Override
-    protected void onPause() {
-        prefs.saveHighScore(score.getScore());
-        prefs.setState(this.currentQuestionIndex);
-        prefs.saveCount(score.getScore());
-        super.onPause();
-    }
+//    @Override
+//    protected void onPause() {
+//        prefs.saveHighScore(score.getScore());
+//        prefs.setState(this.currentQuestionIndex);
+//        prefs.saveCount(score.getScore());
+//        super.onPause();
+//    }
 }
