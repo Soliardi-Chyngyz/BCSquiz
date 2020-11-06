@@ -20,6 +20,7 @@ import com.example.bcsquiz.R;
 import com.example.bcsquiz.data.AnswerListAsyncResponse;
 import com.example.bcsquiz.data.QuestionBank;
 import com.example.bcsquiz.model.Question;
+import com.example.bcsquiz.model.Users;
 import com.example.demo.model.Score;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<Question> questionList;
 
     private int scoreCount = 0;
-    private Score score;
+    private Users users;
     private Prefs prefs;
 
 
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        score = new Score();
+        users = new Users();
         prefs = new Prefs(MainActivity.this);
         getSupportActionBar().hide();
         init();
@@ -140,8 +141,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void addPoints() {
         scoreCount += 10;
-        score.setScore(scoreCount);
-        sumCurrent.setText(MessageFormat.format("{0} points", String.valueOf(score.getScore())));
+        users.setPoints(scoreCount);
+        sumCurrent.setText(MessageFormat.format("{0} points", String.valueOf(users.getPoints())));
     }
 
 //    private void deductPoints() {
@@ -214,12 +215,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         currentQuestionIndex = (currentQuestionIndex + 1) % questionList.size();
         updateQuestion();
     }
-
-    @Override
-    protected void onPause() {
-        prefs.saveHighScore(score.getScore());
-        prefs.setState(this.currentQuestionIndex);
-        prefs.saveCount(score.getScore());
-        super.onPause();
-    }
+//
+//    @Override
+//    protected void onPause() {
+//        prefs.saveHighScore(users.getPoints());
+//        prefs.setState(this.currentQuestionIndex);
+//        prefs.saveCount(users.getPoints());
+//        super.onPause();
+//    }
 }

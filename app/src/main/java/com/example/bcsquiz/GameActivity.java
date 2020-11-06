@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,9 +24,13 @@ import com.example.bcsquiz.controller.AppController;
 import com.example.bcsquiz.data.AnswerListAsyncResponse;
 import com.example.bcsquiz.data.QuestionBank;
 import com.example.bcsquiz.model.Question;
+import com.example.bcsquiz.model.Users;
 import com.example.demo.model.Score;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.text.MessageFormat;
@@ -103,6 +108,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 timeLeftInMilliSeconds = l;
                 updateTimer();
             }
+
             @Override
             public void onFinish() {
                 shakeAnim();
@@ -249,13 +255,40 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void goNext() {
-        currentQuestionIndex = (currentQuestionIndex + 1) % questionList.size();
-        firstBtn.setEnabled(true);
-        secBtn.setEnabled(true);
-        thirdBtn.setEnabled(true);
-        fourthBtn.setEnabled(true);
-        updateData();
-        startTime();
+        if (currentQuestionIndex != 22) {
+            currentQuestionIndex = (currentQuestionIndex + 1) % questionList.size();
+            firstBtn.setEnabled(true);
+            secBtn.setEnabled(true);
+            thirdBtn.setEnabled(true);
+            fourthBtn.setEnabled(true);
+            updateData();
+            startTime();
+        } else {
+
+            score.getScore();
+            Users users = new Users()
+            saveOnFS();
+            Intent intent = new Intent(this, ThirdActivity.class);
+            startActivity(intent);
+
+        }
+    }
+
+    private void saveOnFS(Users users) {
+        FirebaseFirestore.getInstance()
+                .collection("Users")
+                .add(users)
+                .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentReference> task) {
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(GameActivity.this, "Couldn't saved on FIRESTORE! ! !", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @SuppressLint("SetTextI18n")
