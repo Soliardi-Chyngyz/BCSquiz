@@ -1,8 +1,10 @@
-package com.example.bcsquiz;
+package com.example.demo.ThirdActivity;
+
+import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.Bundle;
+import com.example.bcsquiz.R;
 
 public class ThirdActivity extends AppCompatActivity {
 

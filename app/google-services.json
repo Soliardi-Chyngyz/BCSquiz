@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1006962670004:android:286aa98c1bd2cb79541ae1",
         "android_client_info": {
-          "package_name": "com.example.bcsquiz"
+          "package_name": "com.example.bcsquiz.demo.debug"
         }
       },
       "oauth_client": [

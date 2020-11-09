@@ -1,11 +1,6 @@
-package com.example.bcsquiz;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
+package com.example.demo;
 
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,6 +15,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+
+import com.example.bcsquiz.R;
 import com.example.bcsquiz.ThirdActivity.ThirdActivity;
 import com.example.bcsquiz.data.QuestionBank;
 import com.example.bcsquiz.model.Question;
@@ -27,7 +27,6 @@ import com.example.bcsquiz.model.Users;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -47,6 +46,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private int scoreCount = 0;
     private Users users;
+    private Prefs prefs;
 
     private CountDownTimer countDownTimer;
     private long timeLeftInMilliSeconds = 20000;
@@ -188,6 +188,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private void addPoints() {
         int scoreCount = (users.getPoints() + (int) (timeLeftInMilliSeconds / 1000));
         users.setPoints(scoreCount);
+        users.getUser();
         sumCurrent.setText(MessageFormat.format("{0} points", String.valueOf(users.getPoints())));
     }
 
@@ -252,7 +253,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void goNext() {
-        if (currentQuestionIndex != 22) {
+        if (currentQuestionIndex != 23) {
             currentQuestionIndex = (currentQuestionIndex + 1) % questionList.size();
             firstBtn.setEnabled(true);
             secBtn.setEnabled(true);
@@ -266,15 +267,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void saveOnFS() {
-        String name = getIntent().getStringExtra("name");
-        users.setUser(name);
         FirebaseFirestore.getInstance()
                 .collection("Users")
                 .add(users)
                 .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
-                        intent();
+                        transfer();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -284,7 +283,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private void intent() {
+    private void transfer() {
         Intent intent = new Intent(this, ThirdActivity.class);
         startActivity(intent);
         finish();

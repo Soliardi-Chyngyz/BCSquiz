@@ -5,19 +5,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:background="@drawable/fon"
+
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <TextView
+        android:padding="10dp"
+        android:layout_width="320dp"
+        android:background="#D5A0A0"
+        android:layout_height="wrap_content"
+        android:text="@string/desc"
+        android:textColor="#050303"
+        android:fontFamily="@font/adamina"
+        app:layout_constraintBottom_toTopOf="@+id/ed_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/ed_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="172dp"
+        android:layout_marginTop="388dp"
         android:ems="10"
-        android:inputType="textPersonName|textCapWords"
-        android:hint="@string/input_your_name"
         android:fontFamily="@font/adamina"
+        android:hint="@string/input_your_name"
+        android:inputType="textPersonName|textCapWords"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
@@ -30,7 +43,7 @@
         android:layout_marginTop="28dp"
         android:background="@drawable/btn"
         android:fontFamily="@font/adamina"
-        android:text="confirm"
+        android:text="Start"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"

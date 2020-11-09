@@ -1,13 +1,11 @@
-package com.example.bcsquiz.model;
+package com.example.demo.model;
 
 import com.google.firebase.firestore.Exclude;
 
-import org.intellij.lang.annotations.PrintFormat;
-
 import java.io.Serializable;
-import java.util.Comparator;
 
-public class   Users implements Serializable{
+public class Users implements Serializable {
+
 
     private long id;
     private String user;
@@ -19,6 +17,10 @@ public class   Users implements Serializable{
     }
 
     public Users() {
+
+    }
+
+    public Users(String user, String points) {
     }
 
     @Exclude
@@ -45,5 +47,4 @@ public class   Users implements Serializable{
     public void setPoints(int points) {
         this.points = points;
     }
-
 }
