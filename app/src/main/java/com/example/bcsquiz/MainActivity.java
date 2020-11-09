@@ -10,6 +10,8 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bcsquiz.model.Users;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
     private EditText etName;
@@ -31,9 +33,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void transfer() {
-        Users users = new Users();
-        users.setUser(etName.getText().toString());
+        String name = etName.getText().toString();
         Intent intent = new Intent(this, GameActivity.class);
+        intent.putExtra("name", name);
         startActivity(intent);
         finish();
     }

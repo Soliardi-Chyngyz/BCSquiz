@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/game_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BCSquiz">
-        <activity android:name=".ThirdActivity"></activity>
+        <activity android:name=".ThirdActivity.ThirdActivity"></activity>
         <activity android:name=".GameActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
