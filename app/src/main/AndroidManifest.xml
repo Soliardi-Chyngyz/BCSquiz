@@ -14,7 +14,7 @@
         android:theme="@style/Theme.BCSquiz">
         <activity android:name=".ThirdActivity.ThirdActivity"></activity>
         <activity android:name=".GameActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name="com.example.demo.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -1,11 +1,6 @@
 package com.example.bcsquiz;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,22 +15,24 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+
 import com.example.bcsquiz.ThirdActivity.ThirdActivity;
+import com.example.bcsquiz.data.AnswerListAsyncResponse;
 import com.example.bcsquiz.data.QuestionBank;
 import com.example.bcsquiz.model.Question;
 import com.example.bcsquiz.model.Users;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
-
-import util.Prefs;
+import java.util.Objects;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
     private TextView questionTxt, questionCounterTxt, sumCurrent, topPoints, timer;
@@ -45,31 +42,50 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private int currentQuestionIndex = 0;
     private List<Question> questionList;
 
-    private int scoreCount = 0;
+    private final int scoreCount = 0;
     private Users users;
 
     private CountDownTimer countDownTimer;
     private long timeLeftInMilliSeconds = 20000;
+    private ProgressBar progressBar;
+    private Boolean isDownloaded = false;
+    /*private int progressStatus = 0;
+    private Handler handler = new Handler();*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_game);
+        init();
+
+        questionList = new QuestionBank().getQuestions(new AnswerListAsyncResponse() {
+            @Override
+            public void processFinished(ArrayList<Question> questionArrayList) {
+                if (!questionArrayList.isEmpty()) {
+                    isDownloaded = true;
+                    questionTxt.setText(questionArrayList.get(currentQuestionIndex).getQuestion());
+                    questionCounterTxt.setText(MessageFormat.format("{0} / {1}", currentQuestionIndex, questionArrayList.size()));
+                    firstBtn.setText(questionArrayList.get(currentQuestionIndex).getV1());
+                    secBtn.setText(questionArrayList.get(currentQuestionIndex).getV2());
+                    thirdBtn.setText(questionArrayList.get(currentQuestionIndex).getV3());
+                    fourthBtn.setText(questionArrayList.get(currentQuestionIndex).getV4());
+                }
+                checkDownloaded();
+            }
+        });
+
+
         // изменения цвета статус бара
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //            getWindow().setStatusBarColor(R.color.transparent);
 //        }
         // убрали статус бар
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_game);
-        getSupportActionBar().hide();
-
-        ProgressBar progressBar = findViewById(R.id.progressBar);
-        progressBar.setVisibility(ProgressBar.VISIBLE);
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
         users = new Users();
 //        prefs = new Prefs(GameActivity.this);
-        init();
-//        initMessage();
+        initMessage();
 
 //        nextBtn.setOnClickListener(this);
 //        prevBtn.setOnClickListener(this);
@@ -85,16 +101,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 //        currentQuestionIndex = prefs.getState();
 //        topPoints.setText(MessageFormat.format("Highest points: {0}", String.valueOf(prefs.getHighScore())));
 
-        questionList = new QuestionBank().getQuestions(questionArrayList -> {
-            questionTxt.setText(questionArrayList.get(currentQuestionIndex).getQuestion());
-            questionCounterTxt.setText(MessageFormat.format("{0} / {1}", currentQuestionIndex, questionArrayList.size()));
-            firstBtn.setText(questionArrayList.get(currentQuestionIndex).getV1());
-            secBtn.setText(questionArrayList.get(currentQuestionIndex).getV2());
-            thirdBtn.setText(questionArrayList.get(currentQuestionIndex).getV3());
-            fourthBtn.setText(questionArrayList.get(currentQuestionIndex).getV4());
-        });
-        progressBar.setVisibility(View.INVISIBLE);
         startTime();
+    }
+
+    private void checkDownloaded() {
+        if (isDownloaded) {
+            progressBar.setVisibility(View.GONE);
+            btnDisEnabled(true);
+        } else {
+            progressBar.setVisibility(View.VISIBLE);
+            btnDisEnabled(false);
+        }
     }
 
     private void startTime() {
@@ -120,20 +137,21 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initMessage() {
         FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {
-                        Log.w("TAG", "Fetching FCM registration token failed", task.getException());
-
-                    } else {
-                        String token = task.getResult();
-                        Log.w("TOKEN", token);
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("TAG", "Fetching FCM registration token failed", task.getException());
+                        } else {
+                            String token = task.getResult();
+                            Log.w("TOKEN", token);
+                        }
                     }
                 });
     }
 
     private void init() {
-//        nextBtn = findViewById(R.id.next_btn);
-//        prevBtn = findViewById(R.id.prev_btn);
+        progressBar = findViewById(R.id.progressBar);
         firstBtn = findViewById(R.id.f_btn);
         secBtn = findViewById(R.id.s_btn);
         thirdBtn = findViewById(R.id.t_btn);
@@ -145,44 +163,55 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         timer = findViewById(R.id.timer);
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.f_btn:
-                checkAnswer(questionList.get(currentQuestionIndex).getV1());
-                updateData();
-                break;
-            case R.id.s_btn:
-                checkAnswer(questionList.get(currentQuestionIndex).getV2());
-                updateData();
-                break;
-            case R.id.t_btn:
-                checkAnswer(questionList.get(currentQuestionIndex).getV3());
-                updateData();
-                break;
-            case R.id.fo_btn:
-                checkAnswer(questionList.get(currentQuestionIndex).getV4());
-                updateData();
-                break;
+        if (questionList != null) {
+            switch (view.getId()) {
+                case R.id.f_btn:
+                    checkAnswer(questionList.get(currentQuestionIndex).getV1());
+                    updateData();
+                    break;
+                case R.id.s_btn:
+                    checkAnswer(questionList.get(currentQuestionIndex).getV2());
+                    updateData();
+                    break;
+                case R.id.t_btn:
+                    checkAnswer(questionList.get(currentQuestionIndex).getV3());
+                    updateData();
+                    break;
+                case R.id.fo_btn:
+                    checkAnswer(questionList.get(currentQuestionIndex).getV4());
+                    updateData();
+                    break;
+            }
         }
     }
 
     private void checkAnswer(String userChooseCorrect) {
-        String answerIsTrue = questionList.get(currentQuestionIndex).getAnswerTrue();
-        int toastMessageId = 0;
-        if (userChooseCorrect.equals(answerIsTrue)) {
-            addPoints();
-            fadeView();
-            toastMessageId = R.string.correct_answer;
-            firstBtn.setEnabled(false);
-            secBtn.setEnabled(false);
-            thirdBtn.setEnabled(false);
-            fourthBtn.setEnabled(false);
-        } else {
-            shakeAnim();
-            toastMessageId = R.string.wrong_answer;
+        if (userChooseCorrect != null) {
+            String answerIsTrue = questionList.get(currentQuestionIndex).getAnswerTrue();
+//            int toastMessageId = 0;
+            if (userChooseCorrect.equals(answerIsTrue)) {
+                addPoints();
+                fadeView();
+//            toastMessageId = R.string.correct_answer;
+                btnDisEnabled(false);
+            } else {
+                btnDisEnabled(false);
+                shakeAnim();
+//            toastMessageId = R.string.wrong_answer;
+            }
+//        Toast.makeText(GameActivity.this, toastMessageId, Toast.LENGTH_SHORT).show();
         }
-        Toast.makeText(GameActivity.this, toastMessageId, Toast.LENGTH_SHORT).show();
+    }
+
+
+    private void btnDisEnabled(boolean value) {
+        firstBtn.setEnabled(value);
+        secBtn.setEnabled(value);
+        thirdBtn.setEnabled(value);
+        fourthBtn.setEnabled(value);
     }
 
     private void addPoints() {
@@ -212,12 +241,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onAnimationStart(Animation animation) {
                 cardView.setCardBackgroundColor(Color.GREEN);
+                if (currentQuestionIndex == questionList.size() - 1) {
+                    btnDisEnabled(false);
+                    saveOnFS();
+                } else {
+                    goNext();
+                }
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
                 cardView.setCardBackgroundColor(Color.WHITE);
-                goNext();
             }
 
             @Override
@@ -236,23 +270,27 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onAnimationStart(Animation animation) {
                 cardView.setCardBackgroundColor(Color.RED);
+                if (currentQuestionIndex == questionList.size() - 1) {
+                    btnDisEnabled(false);
+                    saveOnFS();
+                } else {
+                    goNext();
+                }
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
                 cardView.setCardBackgroundColor(Color.WHITE);
-                goNext();
             }
 
             @Override
             public void onAnimationRepeat(Animation animation) {
-
             }
         });
     }
 
     private void goNext() {
-        if (currentQuestionIndex != 22) {
+        if (currentQuestionIndex != questionList.size() - 1) {
             currentQuestionIndex = (currentQuestionIndex + 1) % questionList.size();
             firstBtn.setEnabled(true);
             secBtn.setEnabled(true);
@@ -260,8 +298,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             fourthBtn.setEnabled(true);
             updateData();
             startTime();
-        } else {
-            saveOnFS();
         }
     }
 
@@ -271,17 +307,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         FirebaseFirestore.getInstance()
                 .collection("Users")
                 .add(users)
-                .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentReference> task) {
-                        intent();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(GameActivity.this, "Couldn't saved on FIRESTORE! ! !", Toast.LENGTH_SHORT).show();
-            }
-        });
+                .addOnCompleteListener(task ->
+                        intent()).addOnFailureListener(e ->
+                Toast.makeText(GameActivity.this, "Couldn't saved on FIRESTORE! ! !", Toast.LENGTH_SHORT).show());
     }
 
     private void intent() {
@@ -299,7 +327,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         String answer4 = questionList.get(currentQuestionIndex).getV4();
         String question = questionList.get(currentQuestionIndex).getQuestion();
         questionTxt.setText(question);
-        questionCounterTxt.setText(currentQuestionIndex + " / " + questionList.size()); // 0 or 234
+        questionCounterTxt.setText(currentQuestionIndex + " / " + (questionList.size() - 1)); // 0 or 234
         firstBtn.setText(answer1);
         secBtn.setText(answer2);
         thirdBtn.setText(answer3);

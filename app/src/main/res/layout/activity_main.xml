@@ -36,9 +36,8 @@
         tools:ignore="MissingConstraints" >
 
         <TextView
-            android:layout_gravity="center_vertical"
-
             android:id="@+id/question_txt"
+            android:layout_gravity="center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:fontFamily="@font/adamina"

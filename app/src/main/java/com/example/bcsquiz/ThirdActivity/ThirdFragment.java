@@ -11,7 +11,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import com.example.bcsquiz.GameActivity;
+import com.example.bcsquiz.MainActivity;
 import com.example.bcsquiz.R;
 import com.example.bcsquiz.model.Users;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -60,5 +63,13 @@ public class ThirdFragment extends Fragment {
                         }
                     }
                 });
+
+        Button button = view.findViewById(R.id.btn_third);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ThirdActivity.start(getContext());
+            }
+        });
     }
 }

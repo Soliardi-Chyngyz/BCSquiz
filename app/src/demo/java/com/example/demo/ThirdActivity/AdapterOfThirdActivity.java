@@ -61,7 +61,7 @@ public class AdapterOfThirdActivity extends RecyclerView.Adapter<AdapterOfThirdA
             if (user != null) {
                 this.position = position;
                 txtName.setText(user.getUser());
-                txtPoints.setText(String.valueOf(user.getPoints()) + " points");
+                txtPoints.setText(user.getPoints() + " points");
                 num.setText(String.valueOf(getAdapterPosition()));
             }
         }

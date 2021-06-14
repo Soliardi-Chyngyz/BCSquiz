@@ -1,12 +1,16 @@
 package com.example.bcsquiz;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bcsquiz.model.Users;
@@ -34,11 +38,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void transfer() {
         String name = etName.getText().toString();
-        Intent intent = new Intent(this, GameActivity.class);
-        intent.putExtra("name", name);
-        startActivity(intent);
-        finish();
+        if (!TextUtils.isEmpty(name)) {
+            Intent intent = new Intent(this, GameActivity.class);
+            intent.putExtra("name", name);
+            startActivity(intent);
+            finish();
+        } else {
+            Toast.makeText(this, "PUT YOUR NAME ! ! !", Toast.LENGTH_SHORT).show();
+        }
     }
+
 
     private void init() {
         etName = findViewById(R.id.ed_name);

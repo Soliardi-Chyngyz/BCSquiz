@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Objects;
 
 import util.Prefs;
 
@@ -44,12 +46,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private int currentQuestionIndex = 0;
     private List<Question> questionList;
 
-    private int scoreCount = 0;
+    private final int scoreCount = 0;
     private Users users;
-    private Prefs prefs;
 
     private CountDownTimer countDownTimer;
     private long timeLeftInMilliSeconds = 20000;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +63,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         // убрали статус бар
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
         setContentView(R.layout.activity_game);
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
-        ProgressBar progressBar = findViewById(R.id.progressBar);
-        progressBar.setVisibility(ProgressBar.VISIBLE);
+        progressBar = findViewById(R.id.progressBar);
 
         users = new Users();
 //        prefs = new Prefs(GameActivity.this);
@@ -93,7 +94,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             thirdBtn.setText(questionArrayList.get(currentQuestionIndex).getV3());
             fourthBtn.setText(questionArrayList.get(currentQuestionIndex).getV4());
         });
-        progressBar.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.GONE);
         startTime();
     }
 
@@ -111,6 +112,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 shakeAnim();
             }
         }.start();
+    }
+
+    public static void start(Context context) {
+        Intent intent = new Intent(context, GameActivity.class);
+        context.startActivity(intent);
     }
 
     private void updateTimer() {
@@ -145,6 +151,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         timer = findViewById(R.id.timer);
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -168,27 +175,32 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void checkAnswer(String userChooseCorrect) {
-        String answerIsTrue = questionList.get(currentQuestionIndex).getAnswerTrue();
-        int toastMessageId = 0;
-        if (userChooseCorrect.equals(answerIsTrue)) {
-            addPoints();
-            fadeView();
-            toastMessageId = R.string.correct_answer;
-            firstBtn.setEnabled(false);
-            secBtn.setEnabled(false);
-            thirdBtn.setEnabled(false);
-            fourthBtn.setEnabled(false);
-        } else {
-            shakeAnim();
-            toastMessageId = R.string.wrong_answer;
+        if (!userChooseCorrect.isEmpty()) {
+            String answerIsTrue = questionList.get(currentQuestionIndex).getAnswerTrue();
+            int toastMessageId = 0;
+            if (userChooseCorrect.equals(answerIsTrue)) {
+                addPoints();
+                fadeView();
+//            toastMessageId = R.string.correct_answer;
+                btnEnabled();
+            } else {
+                shakeAnim();
+//            toastMessageId = R.string.wrong_answer;
+            }
+//        Toast.makeText(GameActivity.this, toastMessageId, Toast.LENGTH_SHORT).show();
         }
-        Toast.makeText(GameActivity.this, toastMessageId, Toast.LENGTH_SHORT).show();
+    }
+
+    private void btnEnabled() {
+        firstBtn.setEnabled(false);
+        secBtn.setEnabled(false);
+        thirdBtn.setEnabled(false);
+        fourthBtn.setEnabled(false);
     }
 
     private void addPoints() {
         int scoreCount = (users.getPoints() + (int) (timeLeftInMilliSeconds / 1000));
         users.setPoints(scoreCount);
-        users.getUser();
         sumCurrent.setText(MessageFormat.format("{0} points", String.valueOf(users.getPoints())));
     }
 
@@ -218,7 +230,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onAnimationEnd(Animation animation) {
                 cardView.setCardBackgroundColor(Color.WHITE);
-                goNext();
+                if (currentQuestionIndex == questionList.size() - 1) {
+                    btnEnabled();
+                    saveOnFS();
+                } else {
+                    goNext();
+                }
             }
 
             @Override
@@ -242,18 +259,22 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onAnimationEnd(Animation animation) {
                 cardView.setCardBackgroundColor(Color.WHITE);
-                goNext();
+                if (currentQuestionIndex == questionList.size() - 1) {
+                    btnEnabled();
+                    saveOnFS();
+                } else {
+                    goNext();
+                }
             }
 
             @Override
             public void onAnimationRepeat(Animation animation) {
-
             }
         });
     }
 
     private void goNext() {
-        if (currentQuestionIndex != 23) {
+        if (currentQuestionIndex != questionList.size() - 1) {
             currentQuestionIndex = (currentQuestionIndex + 1) % questionList.size();
             firstBtn.setEnabled(true);
             secBtn.setEnabled(true);
@@ -261,29 +282,21 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             fourthBtn.setEnabled(true);
             updateData();
             startTime();
-        } else {
-            saveOnFS();
         }
     }
 
     private void saveOnFS() {
+        String name = getIntent().getStringExtra("name");
+        users.setUser(name);
         FirebaseFirestore.getInstance()
                 .collection("Users")
                 .add(users)
-                .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentReference> task) {
-                        transfer();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(GameActivity.this, "Couldn't saved on FIRESTORE! ! !", Toast.LENGTH_SHORT).show();
-            }
-        });
+                .addOnCompleteListener(task ->
+                        intent()).addOnFailureListener(e ->
+                Toast.makeText(GameActivity.this, "Couldn't saved on FIRESTORE! ! !", Toast.LENGTH_SHORT).show());
     }
 
-    private void transfer() {
+    private void intent() {
         Intent intent = new Intent(this, ThirdActivity.class);
         startActivity(intent);
         finish();
@@ -298,7 +311,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         String answer4 = questionList.get(currentQuestionIndex).getV4();
         String question = questionList.get(currentQuestionIndex).getQuestion();
         questionTxt.setText(question);
-        questionCounterTxt.setText(currentQuestionIndex + " / " + questionList.size()); // 0 or 234
+        questionCounterTxt.setText(currentQuestionIndex + " / " + (questionList.size() - 1)); // 0 or 234
         firstBtn.setText(answer1);
         secBtn.setText(answer2);
         thirdBtn.setText(answer3);

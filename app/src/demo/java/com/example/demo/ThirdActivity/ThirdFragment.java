@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,8 +13,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.bcsquiz.GameActivity;
 import com.example.bcsquiz.R;
 import com.example.bcsquiz.model.Users;
+import com.example.demo.MainActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -28,10 +31,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class ThirdFragment extends Fragment implements Comparator<Users> {
+public class ThirdFragment extends Fragment {
     private List<Users> list = new ArrayList<>();
     private AdapterOfThirdActivity adapter = new AdapterOfThirdActivity(list);
     private FirebaseFirestore fb;
+    private Button button;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,10 +68,15 @@ public class ThirdFragment extends Fragment implements Comparator<Users> {
                         Log.e("TAG", "onComplete: FAILED");
                     }
                 });
+
+        button = view.findViewById(R.id.btn_third);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.start(getContext());
+            }
+        });
     }
 
-    @Override
-    public int compare(Users users, Users t1) {
-        return 0;
-    }
+
 }

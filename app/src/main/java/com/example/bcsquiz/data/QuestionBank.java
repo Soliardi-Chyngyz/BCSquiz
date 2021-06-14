@@ -18,7 +18,6 @@ import java.util.List;
 public class QuestionBank {
     ArrayList<Question> questionArrayList = new ArrayList<>();
     private String url = "https://raw.githubusercontent.com/Soliardi-Chyngyz/BCSquiz/master/bsc-data.json";
-
     public List<Question> getQuestions(final AnswerListAsyncResponse callBack) {
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET,
@@ -55,6 +54,4 @@ public class QuestionBank {
         AppController.getInstance().addToRequestQueue(jsonArrayRequest);
         return questionArrayList;
     }
-
-
 }

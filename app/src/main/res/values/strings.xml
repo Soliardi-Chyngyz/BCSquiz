@@ -8,11 +8,12 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="desc">Hello, this game has rules and short description, please check it: \n
-                        - here are 23 questions and 4 variants \n
+                        - here are 23 questions and 4 variants of answer \n
                         - you have just 20 seconds for each question \n
-                        - adding points equal lost seconds on period \n
+                        - adding points is equal seconds that lost on period \n
                         - if you are not given answer on time, you will skip uncountable case \n
-                        - win those user who make less wrong choose, and select correct button faster \n
+                        - win those gamer who makes less wrong, and select correct button faster \n
+                        - please check you Internet connecting \n
                         If you are ready, please input your name and push on START! \n
                         Good luck!</string>
 </resources>
